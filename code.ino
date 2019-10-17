@@ -20,47 +20,48 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   
-  
+  digitalWrite(LED_YELLOW, LOW);
   digitalWrite(LED_RED, HIGH);
   redTime();
   
   digitalWrite(LED_YELLOW,HIGH);
   redTime();
   
-  delayTimeRed = 2000;
-  
   digitalWrite(LED_RED, LOW);
   digitalWrite(LED_YELLOW, LOW);
   digitalWrite(LED_GREEN, HIGH);
-  StartTime = millis();
-  while(1) {
-    ElapsedTime = millis() - StartTime;
-    if(!digitalRead(BUTTON)) {
-      delayTimeGreen = 10000;
-    }
-    if(ElapsedTime >= delayTimeGreen) {
-      break;
-    }
-  }
+  greenTime();
+  
+  delayTimeRed = 2000;
   delayTimeGreen = 5000; 
 
   digitalWrite(LED_GREEN,LOW);
   digitalWrite(LED_YELLOW,HIGH);
   redTime();
-  
-
-  digitalWrite(LED_YELLOW, LOW);
 }
 
 void redTime() {
   StartTime = millis();
   while(1) {
     ElapsedTime = millis() - StartTime;
-    if(!digitalRead(BUTTON)) {
+    if(digitalRead(BUTTON)) {
       delayTimeRed = 1000;
       delayTimeGreen = 10000;
     }
     if(ElapsedTime >= delayTimeRed) {
+      break;
+    }
+  }
+}
+
+void greenTime() {
+  StartTime = millis();
+  while(1) {
+    ElapsedTime = millis() - StartTime;
+    if(digitalRead(BUTTON)) {
+      delayTimeGreen = 10000;
+    }
+    if(ElapsedTime >= delayTimeGreen) {
       break;
     }
   }
