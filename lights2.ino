@@ -1,4 +1,4 @@
-#include "/home/adamek/Arduino/Lights/Queue.h"
+#include "Queue.h"
 //library from github
 
 const byte LED_RED = 5;
@@ -9,11 +9,13 @@ const byte BUTTON = 10;
 
 unsigned long startTime;
 unsigned long elapsedTime;
+
 unsigned long buttonStartT;
+
 unsigned long buttonElapsedT;
+unsigned long buttonControlSum;
 
 bool cutState;
-bool buttonPressed;
 bool buttonActive;
 byte currentState;
 
@@ -55,16 +57,27 @@ void setup() {
     stateQueue.push(RED);
     switchLights(RED);
 
-    startTime = millis();
+    startTime = buttonStart = millis(); 
     delay(10);   
 }
 
 void loop() {
     currentState = stateQueue.peek();
-    buttonPressed = isPressed();
+    
+    buttonElapsedT = millis() - buttonStartT;
+    if (isPressed() && (buttonElapsedT > 25)) {
+       buttonControlSum += 25;
+       buttonStartT = 0;
+       if (buttonControlSum > 800) {
+         buttonActive = true;
+       }
+    }
+    else {
+      buttonControlSum = 0;
+    }
 
-    if (buttonPressed) {
-        Serial.print("PRESSED");
+    if (buttonActive) {
+        //Serial.print("PRESSED");
         switch (currentState) {
             case RED:
                 stateQueue.push(RED_SHORT);
@@ -83,7 +96,7 @@ void loop() {
                 stateQueue.push(GREEN_LONG);
                 break;
         }
-        buttonPressed = false;
+        buttonActive = false;
     }
 
     elapsedTime = millis() - startTime;
