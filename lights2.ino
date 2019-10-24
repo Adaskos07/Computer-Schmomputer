@@ -64,13 +64,13 @@ void setup() {
 void loop() {
     currentState = stateQueue.peek();
 
-    /* check if button pressed for longer than 800ms */
+    /* check if button pressed for longer than 1000ms */
     buttonElapsedT = millis() - buttonStartT;
     if (isPressed() && (buttonElapsedT >= 25)) {
        buttonControlSum += 25;
        Serial.println(buttonControlSum);
        buttonStartT = millis();
-       if (buttonControlSum >= 2100) {
+       if (buttonControlSum >= 100) {
          buttonActive = true;
        }
     }
