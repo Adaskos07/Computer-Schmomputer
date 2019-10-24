@@ -100,7 +100,7 @@ void loop() {
     }
 
     elapsedTime = millis() - startTime;
-    if ((elapsedTime >= assignedTimes[currentState] || cutState)) {
+    if ((elapsedTime >= assignedTimes[currentState]) || cutState)) {
         //Serial.print(currentState);
         stateQueue.pop();
         cutState = false;
