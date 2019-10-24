@@ -11,7 +11,6 @@ unsigned long startTime;
 unsigned long elapsedTime;
 
 unsigned long buttonStartT;
-
 unsigned long buttonElapsedT;
 unsigned long buttonControlSum;
 
@@ -47,37 +46,43 @@ void setup() {
     /* default state times in miliseconds */ 
     assignedTimes[RED]        = 4000;
     assignedTimes[RED_YELLOW] = 1500;
-    assignedTimes[GREEN]      = 6000;
+    assignedTimes[GREEN]      = 3000;
     assignedTimes[YELLOW]     = 3000;
     assignedTimes[RED_SHORT]  = 2000;
-    assignedTimes[GREEN_LONG] = 12000;
+    assignedTimes[GREEN_LONG] = 6000;
 
     cutState = false;
 
     stateQueue.push(RED);
     switchLights(RED);
+    buttonControlSum = 0;
 
-    startTime = buttonStart = millis(); 
+    startTime = buttonStartT = millis(); 
     delay(10);   
 }
 
 void loop() {
     currentState = stateQueue.peek();
-    
+
+    /* check if button pressed for longer than 800ms */
     buttonElapsedT = millis() - buttonStartT;
-    if (isPressed() && (buttonElapsedT > 25)) {
+    if (isPressed() && (buttonElapsedT >= 25)) {
        buttonControlSum += 25;
-       buttonStartT = 0;
-       if (buttonControlSum > 800) {
+       Serial.println(buttonControlSum);
+       buttonStartT = millis();
+       if (buttonControlSum >= 2100) {
          buttonActive = true;
        }
+    }
+    else if (isPressed()) {
+      ;
     }
     else {
       buttonControlSum = 0;
     }
 
-    if (buttonActive) {
-        //Serial.print("PRESSED");
+    if (buttonActive && (stateQueue.count() < 10)) {
+        Serial.println("PRESSED");
         switch (currentState) {
             case RED:
                 stateQueue.push(RED_SHORT);
@@ -96,17 +101,21 @@ void loop() {
                 stateQueue.push(GREEN_LONG);
                 break;
         }
+        buttonControlSum = 0;
         buttonActive = false;
     }
 
     elapsedTime = millis() - startTime;
-    if ((elapsedTime >= assignedTimes[currentState]) || cutState)) {
+    if ((elapsedTime >= assignedTimes[currentState] || cutState)) {
         //Serial.print(currentState);
         stateQueue.pop();
         cutState = false;
         if (stateQueue.count()==0) {
-            stateQueue.push((currentState+1) % 4);
-        };
+            if(currentState==GREEN_LONG)
+              stateQueue.push(YELLOW);
+            else
+              stateQueue.push((currentState+1) % 4);
+        }
         switchLights(stateQueue.peek());
         startTime = millis();
     }
