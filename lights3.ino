@@ -35,7 +35,7 @@ void setup() {
     buttonControlSum = 0;
 
     startTime = buttonStartT = millis(); 
-    delay(10)
+    delay(10);
 }
 
 void loop() {
