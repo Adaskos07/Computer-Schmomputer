@@ -1,3 +1,4 @@
+
 const byte LED_RED = 12;
 const byte LED_YELLOW = 11;
 const byte LED_GREEN = 10;
@@ -77,8 +78,8 @@ void loop() {
        busButtonStartT = millis();
        if (busButtonCtrlSum >= 900) {
             Serial.println("BUS_ACTIVE");
-            busButtonCtrlSum = 0;
             busButtonActive = true;
+            busButtonCtrlSum = 0;
        }
     }
     else if (isBusBtPressed()) {
@@ -116,10 +117,11 @@ void loop() {
     elapsedTime = millis() - startTime;
     if (elapsedTime >= stateTime) {
         switch (currentState) {
-            case (RED | PD_RED):
+            case RED | PD_RED:
                 if (previousState == (YELLOW | PD_RED)) {
                     currentState = RED | PD_GREEN;
                     stateTime = 8000;
+                    pdButtonActive = false;
                 }
                 else {
                     currentState = RED_YELLOW | PD_RED;
@@ -127,14 +129,19 @@ void loop() {
                 }
                 break;
 
-            case (RED_YELLOW | PD_RED):
+            case RED_YELLOW | PD_RED:
                 currentState = GREEN | PD_RED;
-                stateTime = busButtonActive ? 8000 : 4000;
-                busButtonActive = false;
+                if (pdButtonActive) {
+                    stateTime = 3000;
+                }
+                else {
+                    stateTime = busButtonActive ? 8000 : 4000;
+                    busButtonActive = false;
+                }
                 break;
 
-            case (GREEN | PD_RED):
-                if (busButtonActive) {
+            case GREEN | PD_RED:
+                if (busButtonActive && !pdButtonActive) {
                     currentState = GREEN | PD_RED;
                     stateTime = 8000;
                     busButtonActive = false;
@@ -145,13 +152,13 @@ void loop() {
                 }
                 break;
 
-            case (YELLOW | PD_RED):
+            case YELLOW | PD_RED:
                 previousState = currentState;
                 currentState = RED | PD_RED;
                 stateTime = 3000;
                 break;
 
-            case (RED | PD_GREEN):
+            case RED | PD_GREEN:
                 previousState = currentState;
                 currentState = RED | PD_RED;
                 stateTime = 4000;
